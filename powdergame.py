@@ -111,17 +111,57 @@ def fall_sand():
                 # Check all 8 adjacent tiles
                 for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
                     nx, ny = x + dx, y + dy
+                    if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])):
+                        adjacent_tile = grid[nx][ny]
+                        
+                        # Water + Lava interaction
+                        if adjacent_tile == "lava":
+                            # Convert water to steam
+                            grid[x][y] = "steam"
+                            # Initialize life for steam
+                            initialize_particle_life(x, y, "steam")
+                            # Convert lava to obsidian
+                            grid[nx][ny] = "obsidian"
+                            # Initialize life for obsidian
+                            initialize_particle_life(nx, ny, "obsidian")
+                            continue
+                            
+                        # Water + Salt interaction (dissolve salt)
+                        elif adjacent_tile == "salt":
+                            # Dissolve salt in water
+                            grid[nx][ny] = None
+                            continue
+            
+            # Ice melting near heat sources
+            if tile == "ice":
+                # Check all 8 adjacent tiles for heat sources
+                for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
+                    nx, ny = x + dx, y + dy
                     if (0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and 
-                        grid[nx][ny] == "lava"):
-                        # Convert water to steam
-                        grid[x][y] = "steam"
-                        # Initialize life for steam
-                        initialize_particle_life(x, y, "steam")
-                        # Convert lava to obsidian
-                        grid[nx][ny] = "obsidian"
-                        # Initialize life for obsidian
-                        initialize_particle_life(nx, ny, "obsidian")
-                        continue
+                        grid[nx][ny] in ["fire", "lava"]):
+                        # Higher chance to melt near heat sources
+                        if random.random() < 0.2:  # 20% chance per frame
+                            grid[x][y] = "water"
+                            continue
+            
+            # Electricity conduction
+            if tile == "electricity":
+                # Check all 8 adjacent tiles for conductive materials
+                has_conducted = False
+                for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
+                    nx, ny = x + dx, y + dy
+                    if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])):
+                        # Conduct through water
+                        if grid[nx][ny] == "water" and random.random() < 0.8:
+                            # Add new electricity particle
+                            find_empty_adjacent = [(dx2, dy2) for dx2 in range(-1, 2) for dy2 in range(-1, 2)
+                                               if 0 <= nx+dx2 < len(grid) and 0 <= ny+dy2 < len(grid[0]) 
+                                               and grid[nx+dx2][ny+dy2] is None]
+                            if find_empty_adjacent:
+                                ex, ey = random.choice(find_empty_adjacent)
+                                grid[nx+ex][ny+ey] = "electricity"
+                                initialize_particle_life(nx+ex, ny+ey, "electricity")
+                                has_conducted = True
 
             # Check for flaming stuff (like fire) spreading to flammable materials
             if data[tile].get('flaming', False):

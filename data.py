@@ -198,6 +198,68 @@ data = {
         "flaming": False,
         "textiswhite":  True,  # Text is white on black background
     },
+    "glass": {
+        "name": "Glass",
+        "label": "GLAS",
+        "description": "Transparent solid that can shatter.",
+        "fall": 0,  # Solid
+        "color": (173, 216, 230),  # Light blue transparent-like color
+        "density": 2500,
+        "flammable": False,
+        "flaming": False,
+        "shatter": "sand"  # Shatters into sand particles
+    },
+    "ice": {
+        "name": "Ice",
+        "label": "ICE ",
+        "description": "Frozen water that melts with heat.",
+        "fall": 0,  # Solid
+        "color": (200, 240, 255),  # Very light blue
+        "density": 900,  # Less dense than water
+        "flammable": True,
+        "overrideburn": "water",  # Melts into water when heated
+        "flaming": False,
+        "slife": (300, 400),  # Long life in normal conditions
+        "mlife": 300,
+        "life0": ["become", "Water"]  # Becomes water when life ends
+    },
+    "plant": {
+        "name": "Plant",
+        "label": "PLNT",
+        "description": "Living plant that can grow and burn.",
+        "fall": 0,  # Solid
+        "color": (0, 180, 0),  # Green
+        "density": 500,
+        "flammable": True,
+        "flaming": False,
+        "burnm": 1.5,  # Burns easily
+        "clone": "plant"  # Can spread/grow to adjacent empty spaces
+    },
+    "salt": {
+        "name": "Salt",
+        "label": "SALT",
+        "description": "Dissolves in water and affects properties.",
+        "fall": 1,  # Powder fall
+        "color": (255, 255, 255),  # White
+        "density": 4,
+        "flammable": False,
+        "flaming": False
+    },
+    "electricity": {
+        "name": "Electricity",
+        "label": "ELEC",
+        "description": "Conducts through metals and water.",
+        "fall": 3,  # Gas-like movement
+        "color": (255, 255, 0),  # Yellow
+        "density": 1,
+        "flammable": False,
+        "flaming": True,  # Can ignite things
+        "burn": 0.8,  # High chance to ignite
+        "slife": (10, 20),  # Short life
+        "mlife": 10,
+        "life0": ["die"],  # Disappears when life runs out
+        "enablefadingout": True
+    },
 }
 
 achievements = {
@@ -264,6 +326,34 @@ achievements = {
         "type": "Achievement", # Achievement, Challenge, or SECRET
         "condit": ["liferanout", "steam", "100"], # condition, which particle (* for any), amount needed (optional)
     },
+    "ice_sculptor": {
+        "name": "Ice Sculptor",
+        "description": "Place 50 ice particles.",
+        "achieved": False,
+        "type": "Achievement",
+        "condit": ["place", "ice", "50"],
+    },
+    "green_thumb": {
+        "name": "Green Thumb",
+        "description": "Create a garden with 100 plant particles.",
+        "achieved": False,
+        "type": "Achievement",
+        "condit": ["place", "plant", "100"],
+    },
+    "master_electrician": {
+        "name": "Master Electrician",
+        "description": "Place electricity.",
+        "achieved": False,
+        "type": "Challenge",
+        "condit": ["place", "electricity"],
+    },
+    "glass_artist": {
+        "name": "Glass Artist",
+        "description": "Shatter 20 glass particles.",
+        "achieved": False,
+        "type": "SECRET",
+        "condit": ["liferanout", "glass", "20"],
+    },
 }
 
 map_labels_to_items = {
@@ -284,4 +374,9 @@ map_labels_to_items = {
     "DYNT": "dynamite",
     "ROCK": "rock",
     "OBSD": "obsidian",
+    "GLAS": "glass",
+    "ICE ": "ice",
+    "PLNT": "plant",
+    "SALT": "salt",
+    "ELEC": "electricity",
 }
