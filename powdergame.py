@@ -52,8 +52,21 @@ clock = pygame.time.Clock()
 
 # Selection GUI setup
 buttons = []
+total_items = len(data.items())
+items_per_row = (total_items + 1) // 2  # Split items evenly between two rows, rounding up
+button_height = GUI_HEIGHT // 2  # Each button is half the height of the GUI area
+
 for index, (key, value) in enumerate(data.items()):
-    button_rect = pygame.Rect(index * (WIDTH // len(data)), HEIGHT - GUI_HEIGHT, WIDTH // len(data), GUI_HEIGHT)
+    # Calculate row and column
+    row = index // items_per_row  # 0 for first row, 1 for second row
+    col = index % items_per_row   # Column within the row
+    
+    # Calculate button position and size
+    button_width = WIDTH // items_per_row
+    button_x = col * button_width
+    button_y = HEIGHT - GUI_HEIGHT + (row * button_height)
+    
+    button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
     buttons.append((button_rect, value['label'], value["color"]))
 
 # Initialize grid
@@ -235,7 +248,7 @@ def fall_sand():
                     
                     if not has_water_nearby:
                         # No water, small chance to grow naturally
-                        if random.random() < 0.01:
+                        if random.random() < 0.001:
                             grid[x][y-1] = "plant"  # Grow upward (y-1 is up in this coordinate system)
                             initialize_particle_life(x, y-1, "plant")
                     else:
@@ -246,7 +259,17 @@ def fall_sand():
                             # Grow upward
                             grid[x][y-1] = "plant"
                             initialize_particle_life(x, y-1, "plant")
-
+                else:
+                    # anti-drowning
+                    # 5% chance of absoribng water anyway
+                    if random.random() < 0.05:
+                        for dx, dy in [(-1,0), (1,0), (0,1)]:
+                            nx, ny = x + dx, y + dy
+                            if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == "water":
+                                grid[nx][ny] = None
+                                grid[x][y-1] = "plant"
+                                initialize_particle_life(x, y-1, "plant")
+                                break   
             # Corrosion effects by acid on other things...
             # this code will cause corrosion effects.
             if data[tile].get('corrode', False):
@@ -593,9 +616,9 @@ while running:
     # Draw GUI
     for button_rect, label, color in buttons:
         pygame.draw.rect(screen, color, button_rect)
-        font = pygame.font.Font(None, 24)
+        font = pygame.font.Font(None, 18)  # Smaller font size to fit the smaller buttons
         text = font.render(label, True, (0, 0, 0) if not data[map_labels_to_items[label]].get("textiswhite", False) else (255, 255, 255))
-        # CeNTERED
+        # Centered
         screen.blit(text, (button_rect.x + (button_rect.width - text.get_width()) // 2, button_rect.y + (button_rect.height - text.get_height()) // 2))
 
     # Draw achievements if any exist
