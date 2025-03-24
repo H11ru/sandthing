@@ -221,22 +221,31 @@ def fall_sand():
             if tile == "plant":
                 # if no water adjacent, plant grows up with a 1% chance. otherwise, it absorbs the water and grows with a 100% chance. water is not absorbed if plant blocked.
                 # check if a obstruction
-                if grid[x][y+1] == "air":
+                if y > 0 and grid[x][y-1] is None:  # Check if space above is empty (None, not "air")
                     # Check for water
-                    if not any(grid[x+dx][y+dy] == "water" for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]):
+                    has_water_nearby = False
+                    water_pos = None
+                    
+                    for dx, dy in [(-1,0), (1,0), (0,1)]:  # Check left, right, below for water
+                        nx, ny = x + dx, y + dy
+                        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == "water":
+                            has_water_nearby = True
+                            water_pos = (nx, ny)
+                            break
+                    
+                    if not has_water_nearby:
+                        # No water, small chance to grow naturally
                         if random.random() < 0.01:
-                            grid[x][y+1] = "plant"
-                            initialize_particle_life(x, y+1, "plant")
+                            grid[x][y-1] = "plant"  # Grow upward (y-1 is up in this coordinate system)
+                            initialize_particle_life(x, y-1, "plant")
                     else:
-                        # absorb that water
-                        # find the water
-                        for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
-                            if grid[x+dx][y+dy] == "water":
-                                grid[x+dx][y+dy] = None
-                                break
-                        # grow up
-                        grid[x][y+1] = "plant"
-                        initialize_particle_life(x, y+1, "plant")
+                        # Water found - absorb it and grow
+                        if water_pos:
+                            # Remove the water
+                            grid[water_pos[0]][water_pos[1]] = None
+                            # Grow upward
+                            grid[x][y-1] = "plant"
+                            initialize_particle_life(x, y-1, "plant")
 
             # Corrosion effects by acid on other things...
             # this code will cause corrosion effects.
