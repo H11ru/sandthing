@@ -186,7 +186,18 @@ data = {
         "flammable": False,
         "flaming": False,
         "shatter": "stone"  # Shatters into stone particles
-    }
+    },
+    "obsidian": {
+        "name": "Obsidian",
+        "label": "OBSD",
+        "description": "Solid black rock.",
+        "fall": 0,  # Solid
+        "color": (0, 0, 0),  # Black color
+        "density": 3000,
+        "flammable": False,
+        "flaming": False,
+        "textiswhite":  True,  # Text is white on black background
+    },
 }
 
 achievements = {
@@ -253,4 +264,24 @@ achievements = {
         "type": "Achievement", # Achievement, Challenge, or SECRET
         "condit": ["liferanout", "steam", "100"], # condition, which particle (* for any), amount needed (optional)
     },
+}
+
+map_labels_to_items = {
+    "SAND": "sand",
+    "WATR": "water",
+    "FIRE": "fire",
+    "STNE": "stone",
+    "SMKE": "smoke",
+    "WOOD": "wood",
+    "FUSE": "fuse",
+    "OIL ": "oil",
+    "VPOR": "steam",
+    "GNPW": "gunpowder",
+    "LAVA": "lava",
+    "WALL": "wall",
+    "ACID": "acid",
+    "FLMR": "flamer",
+    "DYNT": "dynamite",
+    "ROCK": "rock",
+    "OBSD": "obsidian",
 }
