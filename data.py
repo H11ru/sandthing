@@ -219,9 +219,6 @@ data = {
         "flammable": True,
         "overrideburn": "water",  # Melts into water when heated
         "flaming": False,
-        "slife": (300, 400),  # Long life in normal conditions
-        "mlife": 300,
-        "life0": ["become", "Water"]  # Becomes water when life ends
     },
     "plant": {
         "name": "Plant",
@@ -233,14 +230,14 @@ data = {
         "flammable": True,
         "flaming": False,
         "burnm": 1.5,  # Burns easily
-        "clone": "plant"  # Can spread/grow to adjacent empty spaces
+        
     },
     "salt": {
         "name": "Salt",
         "label": "SALT",
         "description": "Dissolves in water and affects properties.",
         "fall": 1,  # Powder fall
-        "color": (255, 255, 255),  # White
+        "color": (230, 230, 230),  # Light grey
         "density": 4,
         "flammable": False,
         "flaming": False
@@ -352,10 +349,23 @@ achievements = {
         "description": "Shatter 20 glass particles.",
         "achieved": False,
         "type": "SECRET",
-        "condit": ["liferanout", "glass", "20"],
+        "condit": ["exploded", "glass", "20"],
+    },
+    "boom": {
+        "name": "Boom",
+        "description": "Explode some dynamite.",
+        "achieved": False,
+        "type": "Challenge",
+        "condit": ["exploded", "*", "1"],
+    },
+    "explosive_expert": {
+        "name": "Explosive Expert",
+        "description": "Explode 1000 particles.",
+        "achieved": False,
+        "type": "Challenge",
+        "condit": ["exploded", "*", "1000"],
     },
 }
-
 map_labels_to_items = {
     "SAND": "sand",
     "WATR": "water",

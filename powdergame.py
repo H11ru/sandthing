@@ -19,6 +19,9 @@ achievement_counts = {}   # Track counts for achievement conditions
 placed = {}
 for key in data:
     placed[key] = 0  # Initialize placed counts for each particle type
+exploded = {}
+for key in data:
+    exploded[key] = 0  # Initialize exploded counts for each particle type
 
 # Bresenham's Line Algorithm
 def bresenham(x1, y1, x2, y2):
@@ -187,13 +190,16 @@ def fall_sand():
                                                     # Check if target can shatter
                                                     if grid[nx2][ny2] and data[grid[nx2][ny2]].get('shatter'):
                                                         # Convert to shattered form
+                                                        exploded[grid[nx2][ny2]] += 1
                                                         shattered_type = data[grid[nx2][ny2]]['shatter']
                                                         grid[nx2][ny2] = shattered_type
                                                         # Initialize life if needed
                                                         if shattered_type in data and 'slife' in data[shattered_type]:
                                                             initialize_particle_life(nx2, ny2, shattered_type)
-                                                    else:
-                                                        pass
+                                                    else: # if not shattered, it  has a 10% chance of flamed unless wall or other special things
+                                                        if random.random() < 0.1 and grid[nx2][ny2] not in ["wall", "fire", "lava", "electricity", "steam", "obsidian"]:
+                                                            grid[nx2][ny2] = "fire"
+                                                            initialize_particle_life(nx2, ny2, "fire")
                                     # Remove the exploded dynamite by fire
                                     grid[nx][ny] = "lava" if random.random() < 0.2 else "fire"
                                     # initialize life for fire
@@ -211,8 +217,29 @@ def fall_sand():
                                 grid[nx][ny] = new_tile
                                 # Initialize new life if the new element has life
                                 initialize_particle_life(nx, ny, new_tile)
+            # plants grow up rarely
+            if tile == "plant":
+                # if no water adjacent, plant grows up with a 1% chance. otherwise, it absorbs the water and grows with a 100% chance. water is not absorbed if plant blocked.
+                # check if a obstruction
+                if grid[x][y+1] == "air":
+                    # Check for water
+                    if not any(grid[x+dx][y+dy] == "water" for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]):
+                        if random.random() < 0.01:
+                            grid[x][y+1] = "plant"
+                            initialize_particle_life(x, y+1, "plant")
+                    else:
+                        # absorb that water
+                        # find the water
+                        for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
+                            if grid[x+dx][y+dy] == "water":
+                                grid[x+dx][y+dy] = None
+                                break
+                        # grow up
+                        grid[x][y+1] = "plant"
+                        initialize_particle_life(x, y+1, "plant")
 
-            # acidic
+            # Corrosion effects by acid on other things...
+            # this code will cause corrosion effects.
             if data[tile].get('corrode', False):
                 # Check all 8 adjacent tiles
                 for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
@@ -233,7 +260,6 @@ def fall_sand():
                                 # chance for acid to also disappear over time, acid isn't infinite
                                 if random.random() < 0.01:
                                     grid[x][y] = None
-
             # clone
             if data[tile].get('clone', False):
                 # Check all 8 adjacent tiles
@@ -241,12 +267,25 @@ def fall_sand():
                     nx, ny = x + dx, y + dy
                     if (0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and 
                         grid[nx][ny] is None):  # Only clone to empty spaces
-                        # clone the value of clone to this
-                        new_tile = data[tile]['clone']
-                        grid[nx][ny] = new_tile
-                        # Initialize new life if the new element has life
-                        if new_tile in data and 'slife' in data[new_tile]:
-                            initialize_particle_life(nx, ny, new_tile)
+                        # Add random chance for growth based on particle type
+                        growth_chance = 0.05  # Default 5% chance
+                        
+                        # Plant-specific growth logic - slower growth to simulate real plants
+                        if tile == "plant" and random.random() < growth_chance:
+                            # Plants prefer to grow upward
+                            if dy <= 0 or random.random() < 0.3:  # Bias toward growing up
+                                new_tile = data[tile]['clone']
+                                grid[nx][ny] = new_tile
+                                # Initialize new life if the new element has life
+                                if new_tile in data and 'slife' in data[new_tile]:
+                                    initialize_particle_life(nx, ny, new_tile)
+                        # For other particles that have clone property (like flamer)
+                        elif tile != "plant" and random.random() < 0.8:  # 80% chance for non-plants
+                            new_tile = data[tile]['clone']
+                            grid[nx][ny] = new_tile
+                            # Initialize new life if the new element has life
+                            if new_tile in data and 'slife' in data[new_tile]:
+                                initialize_particle_life(nx, ny, new_tile)
 
             # Regular falling logic continues...
             if 'fall' in data[tile]:
@@ -364,6 +403,11 @@ def check_achievements():
                     # Check if player has placed at least one of each particle type
                     if all(placed[key] > 0 for key in data.keys()):
                         unlock_achievement(achievement_id)
+                        
+                elif condition == 'exploded':
+                    # Check if any/targeted particle has been exploded at correct count
+                    if exploded[particle_type] >= required_amount: 
+                        unlock_achievement(achievement_id) 
 
 def unlock_achievement(achievement_id):
     if not achievements[achievement_id]['achieved']:
