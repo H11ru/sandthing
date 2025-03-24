@@ -191,7 +191,7 @@ data = {
         "name": "Obsidian",
         "label": "OBSD",
         "description": "Solid black rock.",
-        "fall": 0,  # Solid
+        "fall": 1,
         "color": (0, 0, 0),  # Black color
         "density": 3000,
         "flammable": False,

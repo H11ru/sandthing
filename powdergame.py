@@ -1,5 +1,5 @@
 import pygame
-from data import data, achievements  # Import achievements from data
+from data import data, achievements, map_labels_to_items  # Import data and achievements from data.py
 import random  # For random order logic
 
 # Constants
@@ -501,7 +501,7 @@ while running:
     for button_rect, label, color in buttons:
         pygame.draw.rect(screen, color, button_rect)
         font = pygame.font.Font(None, 24)
-        text = font.render(label, True, (0, 0, 0))
+        text = font.render(label, True, (0, 0, 0) if not data[map_labels_to_items[label]].get("textiswhite", False) else (255, 255, 255))
         # CeNTERED
         screen.blit(text, (button_rect.x + (button_rect.width - text.get_width()) // 2, button_rect.y + (button_rect.height - text.get_height()) // 2))
 
