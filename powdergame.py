@@ -616,7 +616,7 @@ while running:
     # Draw GUI
     for button_rect, label, color in buttons:
         pygame.draw.rect(screen, color, button_rect)
-        font = pygame.font.Font(None, 18)  # Smaller font size to fit the smaller buttons
+        font = pygame.font.Font(None, 24)
         text = font.render(label, True, (0, 0, 0) if not data[map_labels_to_items[label]].get("textiswhite", False) else (255, 255, 255))
         # Centered
         screen.blit(text, (button_rect.x + (button_rect.width - text.get_width()) // 2, button_rect.y + (button_rect.height - text.get_height()) // 2))
