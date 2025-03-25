@@ -242,20 +242,28 @@ data = {
         "flammable": False,
         "flaming": False
     },
+    "metal": {
+        "name": "Metal",
+        "label": "METL",
+        "description": "Solid metal.",
+        "fall": 0,  # Solid
+        "color": (192, 192, 192),  # Silver color
+        "density": 10,
+        "flammable": False,
+        "flaming": False
+    },
     "electricity": {
         "name": "Electricity",
         "label": "ELEC",
         "description": "Conducts through metals and water.",
-        "fall": 3,  # Gas-like movement
+        "fall":0 ,  # Gas-like movement
         "color": (255, 255, 0),  # Yellow
         "density": 1,
         "flammable": False,
-        "flaming": True,  # Can ignite things
-        "burn": 0.8,  # High chance to ignite
-        "slife": (10, 20),  # Short life
-        "mlife": 10,
-        "life0": ["die"],  # Disappears when life runs out
-        "enablefadingout": True
+        "flaming": False,
+        "conduct": True,  # Conducts through metals and water
+        "conducts": ["water", "metal"],  # Conducts through these particles
+        
     },
 }
 
@@ -389,4 +397,5 @@ map_labels_to_items = {
     "PLNT": "plant",
     "SALT": "salt",
     "ELEC": "electricity",
+    "METL": "metal",
 }

@@ -72,6 +72,7 @@ for index, (key, value) in enumerate(data.items()):
 # Initialize grid
 grid = [[None for _ in range((HEIGHT - GUI_HEIGHT) // PARTICLE_SIZE)] for _ in range(WIDTH // PARTICLE_SIZE)]  # Initialize grid
 life_grid = [[0 for _ in range((HEIGHT - GUI_HEIGHT) // PARTICLE_SIZE)] for _ in range(WIDTH // PARTICLE_SIZE)]  # Store life values
+ctype_grid = [[None for _ in range((HEIGHT - GUI_HEIGHT) // PARTICLE_SIZE)] for _ in range(WIDTH // PARTICLE_SIZE)]  # Store ctype values
 last_mouse_pos = None  # Track the last mouse position
 selected_element = None
 
@@ -148,6 +149,35 @@ def fall_sand():
                             grid[nx][ny] = None
                             continue
             
+            # electricite behaviour
+            if tile == "electricity":
+                # Check all 8 adjacent tiles
+                for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
+                    # if theyre in the grid
+                    nx, ny = x + dx, y + dy
+                    if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])):
+                        # if tjeure in electricity's conducts list and arent on cooldown
+                        if grid[nx][ny] in data[tile]['conducts'] and life_grid[nx][ny] <= 0:
+                            # replace the tile with electricity, with a CTYPE of the tile
+                            ctype_grid[nx][ny] = grid[nx][ny]
+                            grid[nx][ny] = "electricity"
+                            # set life to 4
+                            life_grid[nx][ny] = 2
+                # reduce life by 1
+                life_grid[x][y] -= 1
+                # if life is 0, electricity goes away
+                if life_grid[x][y] <= 0:
+                    # Check if it has a ctype
+                    if ctype_grid[x][y]:
+                        # replace with the ctype
+                        grid[x][y] = ctype_grid[x][y]
+                        # set life to 40 for cooldown
+                        life_grid[x][y] = 40
+                    else:
+                        # remove electricity
+                        grid[x][y] = None
+                    continue
+
             # Ice melting near heat sources
             if tile == "ice":
                 # Check all 8 adjacent tiles for heat sources
@@ -160,24 +190,6 @@ def fall_sand():
                             grid[x][y] = "water"
                             continue
             
-            # Electricity conduction
-            if tile == "electricity":
-                # Check all 8 adjacent tiles for conductive materials
-                has_conducted = False
-                for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
-                    nx, ny = x + dx, y + dy
-                    if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])):
-                        # Conduct through water
-                        if grid[nx][ny] == "water" and random.random() < 0.8:
-                            # Add new electricity particle
-                            find_empty_adjacent = [(dx2, dy2) for dx2 in range(-1, 2) for dy2 in range(-1, 2)
-                                               if 0 <= nx+dx2 < len(grid) and 0 <= ny+dy2 < len(grid[0]) 
-                                               and grid[nx+dx2][ny+dy2] is None]
-                            if find_empty_adjacent:
-                                ex, ey = random.choice(find_empty_adjacent)
-                                grid[nx+ex][ny+ey] = "electricity"
-                                initialize_particle_life(nx+ex, ny+ey, "electricity")
-                                has_conducted = True
 
             # Check for flaming stuff (like fire) spreading to flammable materials
             if data[tile].get('flaming', False):
@@ -318,7 +330,17 @@ def fall_sand():
                             # Initialize new life if the new element has life
                             if new_tile in data and 'slife' in data[new_tile]:
                                 initialize_particle_life(nx, ny, new_tile)
-
+            
+            # conductive element cooldown
+            if tile in data and tile in data["electricity"]["conducts"]:
+                # Check if the tile has a cooldown
+                if life_grid[x][y] > 0:
+                    # Reduce the cooldown
+                    life_grid[x][y] -= 1
+                    # If cooldown reaches 0
+                    if life_grid[x][y] <= 0:
+                        # nothing happens
+                        pass
             # Regular falling logic continues...
             if 'fall' in data[tile]:
                 fall_type = data[tile]['fall']
@@ -511,7 +533,15 @@ def draw_with_brush(grid_x, grid_y, element, brush_size):
                         # Only count if we're placing on an empty space or replacing a different element
                         if old_element != element:
                             placed[element] += 1
-                            
+                            # electricity
+                            if element == "electricity":
+                                # its based off metal
+                                if old_element in data["electricity"]["conducts"]:
+                                    # replace the tile with electricity, with a CTYPE of the tile
+                                    ctype_grid[new_x][new_y] = old_element
+                                else:
+                                    # none
+                                    ctype_grid                            
 
 # Main loop
 running = True
