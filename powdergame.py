@@ -2,6 +2,12 @@ import pygame
 from data import data, achievements, map_labels_to_items  # Import data and achievements from data.py
 import random  # For random order logic
 
+# help bro out
+for thing, value in data.items():
+    if value["fall"] == 0: # Solid materials
+        # Prevent weirdness
+        value["density"] = 1e9 # BIG
+
 # Constants
 WIDTH, HEIGHT = 800, 480  # Increased height for the board area
 PARTICLE_SIZE = 5  # Reduced particle size for better fit
@@ -149,6 +155,24 @@ def fall_sand():
                             grid[nx][ny] = None
                             continue
             
+            # Transmutate in precense
+            if data[tile].get('transmuteonpresence', False):
+                things = data[tile]['transmuteonpresence'][0]
+                if not isinstance(things, list):
+                    things = [things]
+                becomes = data[tile]['transmuteonpresence'][1]
+                # check for presense
+                for dx, dy in [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]:
+                    nx, ny = x + dx, y + dy
+                    if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])):
+                        # check for presense of things
+                        if grid[nx][ny] in things:
+                            # replace with becomes
+                            grid[x][y] = becomes
+                            # initialize life for the new element
+                            initialize_particle_life(x, y, becomes)
+                            continue
+
             # electricite behaviour
             if tile == "electricity":
                 # Check all 8 adjacent tiles
@@ -172,7 +196,7 @@ def fall_sand():
                         # replace with the ctype
                         grid[x][y] = ctype_grid[x][y]
                         # set life to 40 for cooldown
-                        life_grid[x][y] = 40
+                        life_grid[x][y] = 10
                     else:
                         # remove electricity
                         grid[x][y] = None

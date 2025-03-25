@@ -232,15 +232,15 @@ data = {
         "burnm": 1.5,  # Burns easily
         
     },
-    "salt": {
-        "name": "Salt",
-        "label": "SALT",
-        "description": "Dissolves in water and affects properties.",
-        "fall": 1,  # Powder fall
-        "color": (230, 230, 230),  # Light grey
-        "density": 4,
+    "rust": {
+        "name": "Rust",
+        "label": "RUST",
+        "description": "Corroded metal.",
+        "fall": 1,
+        "color": (139, 69, 19),  # Brown color
+        "density": 47, # Heavy
         "flammable": False,
-        "flaming": False
+        "flaming": False,
     },
     "metal": {
         "name": "Metal",
@@ -248,9 +248,10 @@ data = {
         "description": "Solid metal.",
         "fall": 0,  # Solid
         "color": (192, 192, 192),  # Silver color
-        "density": 10,
+        "density": 1000,
         "flammable": False,
-        "flaming": False
+        "flaming": False,
+        "transmuteonpresence": ["water", "rust"], # Becomes rust if water is present
     },
     "electricity": {
         "name": "Electricity",
@@ -264,6 +265,17 @@ data = {
         "conduct": True,  # Conducts through metals and water
         "conducts": ["water", "metal"],  # Conducts through these particles
         
+    },
+    "detonator": {
+        "name": "Detonator",
+        "label": "DETN",
+        "description": "Detonates explosives.",
+        "fall": 0,  # Solid
+        "color": (255, 0, 0),  # Red color
+        "density": 999999999,
+        "flammable": False,
+        "flaming": False,
+        "transmuteonpresence": ["electricity", "fire"], # Becomes fire if electricity is present
     },
 }
 
@@ -395,7 +407,8 @@ map_labels_to_items = {
     "GLAS": "glass",
     "ICE ": "ice",
     "PLNT": "plant",
-    "SALT": "salt",
+    "RUST": "rust",
     "ELEC": "electricity",
     "METL": "metal",
+    "DETN": "detonator",
 }
