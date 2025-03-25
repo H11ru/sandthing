@@ -1,0 +1,23 @@
+flowchart TB
+    A[Rigid Body System] --> B[Core Components]
+    A --> C[Physics System]
+    A --> D[User Interface]
+    A --> E[Particle Interactions]
+
+    B --> B1[RigidBody Class]
+    B --> B2[Shape System]
+    B --> B3[Material System]
+
+    C --> C1[Movement Controls]
+    C --> C2[Collision System]
+    C --> C3[Optional Gravity]
+    C --> C4[Rotation System]
+
+    D --> D1[Shape Selector]
+    D --> D2[Material Selector]
+    D --> D3[Gravity Toggle]
+    D --> D4[Rotation Controls]
+
+    E --> E1[Displacement Logic]
+    E --> E2[Density Rules]
+    E --> E3[Element Effects]
